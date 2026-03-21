@@ -1,0 +1,62 @@
+logging:
+  level:
+    ru:
+      finam: DEBUG
+server:
+  port: -1
+hedging:
+  enabled: true
+  instruments:
+    - currentTicker: USDRUBF
+      futureTicker: SiU6
+      anotherFutureTicker: SiM6
+      multiplier: 1000
+      instanceCount: 4
+      addToDiff: 0
+      strategy:
+        currentPositionSize: 2
+        futurePositionSize: 2
+        withExitPosition: false
+#        diffToMin: 30
+#        diffToMax: 800
+#        needDiff: 100
+#        diffToMaxInverse: 300
+#        diffToMinInverse: 0
+        needDiffInverse: 200
+#        orderDiff:
+#          currentPrice: 76.08
+#          futurePrice: 77086
+#          currentVolume: 1
+#          futureVolume: 1
+#          date: 2026-01-22T18:00:00+03:00[Europe/Moscow]
+#          isInverse: false
+#    - currentTicker: IMOEXF
+#      futureTicker: MXH6
+#      anotherFutureTicker: MXM6
+#      multiplier: 100
+#      instanceCount: 1
+#      strategy:
+#        currentPositionSize: 10
+#        futurePositionSize: 1
+#        withExitPosition: true
+#        diffToMin: 50
+#        diffToMax: 350
+#        needDiff: 200
+#        diffToMinInverse: 700
+#        needDiffInverse: 200
+#    - currentTicker: USDRUBF
+#      futureTicker: SiH6
+#      anotherFutureTicker: SiM6
+#      multiplier: 1000
+#      instanceCount: 10
+#      strategy:
+#        currentPositionSize: 10
+#        futurePositionSize: 10
+#        withExitPosition: false
+#        needDiff: 500
+finam:
+  accountId: #accountId
+  secret: #secret
+telegram:
+  chatId: #chatId
+  token: #token
