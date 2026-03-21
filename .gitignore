@@ -37,3 +37,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/instruments.yaml
+/last_price_02_02_2026.csv
