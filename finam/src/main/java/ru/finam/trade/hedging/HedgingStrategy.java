@@ -33,8 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class HedgingStrategy implements OrderStateObserver, FundingObserver {
     public static final LocalTime START_TIME_MARKET = LocalTime.parse("09:01:00");
-    public static final LocalTime END_TIME_MARKET = LocalTime.parse("18:49:00");
-    private static final LocalTime START_TIME_POST_MARKET = LocalTime.parse("19:05:00");
     private static final BigDecimal DIFF_TO_FUTURE_ORDER = BigDecimal.valueOf(3);
 
     private final FinamApi api;
@@ -58,8 +56,6 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
     private final AtomicReference<Order> futureOrder = new AtomicReference<>();
     private volatile Order currentOrder;
     private volatile BigDecimal expectedDiff;
-    @Setter
-    private volatile boolean fundingUpdated;
     @Setter
     private volatile boolean positionExited;
 
@@ -94,7 +90,6 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
                         .build() : null;
         currentOrder = null;
         positionExited = false;
-        fundingUpdated = false;
     }
 
     public List<String> getSymbolList() {
@@ -123,10 +118,6 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
         if (diff.getValue() == null) {
             return;
         }
-        if (isStopTradeMarket() && (!isStartTradePostMarket() || orderDiff != null && !fundingUpdated)) {
-            cancelFutureOrder();
-            return;
-        }
 
         buyOrSellFutureInstrument(diff.getNormalizedCurrentPrice(), diff.getFuturePrice(), inverseMode);
     }
@@ -135,7 +126,7 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
         Side side = null;
         val contangoDay = hedgingStats.getContangoStats().contangoDay();
         int futurePositionSize = 0;
-        if (orderDiff == null && !isStopTradeMarket() && !positionExited) {
+        if (orderDiff == null && !positionExited) {
             if (withExitPosition) {
                 val diffStats = hedgingStats.getDiffStats();
                 val maxDiff = diffStats.getMaxDiff();
@@ -237,14 +228,6 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
 
     private static boolean isStartTradeMarket() {
         return DateUtils.now().toLocalTime().isAfter(START_TIME_MARKET);
-    }
-
-    private static boolean isStopTradeMarket() {
-        return DateUtils.now().toLocalTime().isAfter(END_TIME_MARKET);
-    }
-
-    private static boolean isStartTradePostMarket() {
-        return DateUtils.now().toLocalTime().isAfter(START_TIME_POST_MARKET);
     }
 
     @Override
@@ -356,7 +339,6 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
     public void onUpdateFunding(LocalDate date, BigDecimal funding) {
         if (orderDiff != null && date.equals(orderDiff.getDate().toLocalDate())) {
             orderDiff.setFunding(funding);
-            fundingUpdated = true;
         }
     }
 

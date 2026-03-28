@@ -93,7 +93,6 @@ public class HedgingStrategyStorage implements OrderStateObserver, TradeObserver
             var diffToMax = hedgingInstrument.strategy().diffToMax();
             for (var hedgingStrategy : hedgingStrategyList) {
                 hedgingStrategy.setPositionExited(false);
-                hedgingStrategy.setFundingUpdated(false);
                 if (hedgingStrategy.isAvailableForBuy()) {
                     hedgingStrategy.setDiffToMax(diffToMax);
                     diffToMax = diffToMax.add(hedgingInstrument.addToDiff());
