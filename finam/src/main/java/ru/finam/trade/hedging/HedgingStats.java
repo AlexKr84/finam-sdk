@@ -159,8 +159,8 @@ public class HedgingStats implements LastPriceObserver {
     public void notifyMaxMinDiff() {
         val now = DateUtils.now();
         if (changeDiffStatsTime != null && changeDiffStatsTime.isBefore(now.minusSeconds(5))) {
-            notificationService.sendMessage(String.format("%s maxDiff = %.2f, minDiff = %.2f, maxDiffToMin = %.2f ",
-                    getCurrentSymbol(), diffStats.getMaxDiff(), diffStats.getMinDiff(), diffStats.getMaxDiffToMin()));
+            notificationService.sendMessage(String.format("%s maxDiff = %.2f, maxDiffToMax = %.2f, minDiff = %.2f, maxDiffToMin = %.2f ",
+                    getCurrentSymbol(), diffStats.getMaxDiff(), diffStats.getMaxDiffToMax(), diffStats.getMinDiff(), diffStats.getMaxDiffToMin()));
             changeDiffStatsTime = null;
         }
     }

@@ -43,14 +43,14 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
     private final boolean withExitPosition;
     private final boolean sellFuture;
     private final BigDecimal addToRemainingDays;
+    private final BigDecimal needDiff;
     @Getter
     @Setter
     private BigDecimal diffToMax;
     private final BigDecimal diffToMin;
-    private final BigDecimal needDiff;
-    private final BigDecimal diffToMaxInverse;
-    private final BigDecimal minDiffInverse;
     private final BigDecimal needDiffInverse;
+    private final BigDecimal diffToMaxInverse;
+    private final BigDecimal diffToMinInverse;
     @Getter
     private volatile AdvancedHedgingDiff orderDiff;
     private final AtomicReference<Order> futureOrder = new AtomicReference<>();
@@ -74,7 +74,7 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
         diffToMin = strategyConfiguration.diffToMin();
         needDiffInverse = strategyConfiguration.needDiffInverse();
         diffToMaxInverse = strategyConfiguration.diffToMaxInverse();
-        minDiffInverse = hedgingStats.getPreviousDiffStats().getMinDiff().add(strategyConfiguration.diffToMinInverse());
+        diffToMinInverse = strategyConfiguration.diffToMinInverse();
         currentPositionSize = strategyConfiguration.currentPositionSize();
         futurePositionSize = strategyConfiguration.futurePositionSize();
         val orderDiff = strategyConfiguration.orderDiff();
@@ -130,11 +130,12 @@ public class HedgingStrategy implements OrderStateObserver, FundingObserver {
             if (withExitPosition) {
                 val diffStats = hedgingStats.getDiffStats();
                 val maxDiff = diffStats.getMaxDiff();
+                val maxDiffToMax = diffStats.getMaxDiffToMax();
+                val minDiff = diffStats.getMinDiff();
                 val maxDiffToMin = diffStats.getMaxDiffToMin();
                 val lastDiff = diffStats.getLastDiff().getValue();
                 val buyExpectedDiff = maxDiffToMin.compareTo(diffToMin) > 0 ? maxDiff.subtract(diffToMax) : null;
-                var sellExpectedDiff = maxDiff.subtract(diffToMaxInverse);
-                sellExpectedDiff = sellExpectedDiff.compareTo(minDiffInverse) > 0 ? sellExpectedDiff : null;
+                val sellExpectedDiff = maxDiffToMax.compareTo(diffToMaxInverse) > 0 ? minDiff.add(diffToMinInverse) : null;
                 val isInverse = inverseMode != null ? inverseMode : buyExpectedDiff == null
                         || sellExpectedDiff != null && lastDiff.subtract(buyExpectedDiff).abs().compareTo(lastDiff.subtract(sellExpectedDiff).abs()) > 0;
                 if (isInverse) {

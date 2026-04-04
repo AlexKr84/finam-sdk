@@ -19,6 +19,7 @@ public class DiffStats {
     private BigDecimal minDiff = BigDecimal.valueOf(Long.MAX_VALUE);
     private BigDecimal maxDiff = BigDecimal.valueOf(Long.MIN_VALUE);
     private BigDecimal maxDiffToMin = BigDecimal.valueOf(Long.MIN_VALUE);
+    private BigDecimal maxDiffToMax = BigDecimal.valueOf(Long.MIN_VALUE);
     private final HedgingDiff lastDiff;
 
     public DiffStats(BigDecimal multiplier) {
@@ -44,6 +45,7 @@ public class DiffStats {
         minDiff = toBigDecimal(stats.getMin());
         maxDiffToMin = toBigDecimal(stats.getMaxDiffToMin());
         maxDiff = toBigDecimal(stats.getMax());
+        maxDiffToMax = toBigDecimal(stats.getMaxDiffToMax());
     }
 
     private static BigDecimal toBigDecimal(double value) {
@@ -88,6 +90,10 @@ public class DiffStats {
         }
         if (diff.compareTo(maxDiff) > 0) {
             maxDiff = diff;
+            maxDiffToMax = BigDecimal.ZERO;
+            statsChange = true;
+        } else if (diff.compareTo(maxDiff.subtract(maxDiffToMax)) < 0) {
+            maxDiffToMax = maxDiff.subtract(diff);
             statsChange = true;
         }
         return statsChange;
@@ -97,6 +103,7 @@ public class DiffStats {
     @Getter
     public static class ExtDoubleSummaryStatistics extends DoubleSummaryStatistics {
         private Double maxDiffToMin = Double.NEGATIVE_INFINITY;
+        private Double maxDiffToMax = Double.NEGATIVE_INFINITY;
 
         @Override
         public void accept(double value) {
@@ -104,6 +111,11 @@ public class DiffStats {
                 maxDiffToMin = 0d;
             } else if (value > getMin() + maxDiffToMin) {
                 maxDiffToMin = value - getMin();
+            }
+            if (value > getMax()) {
+                maxDiffToMax = 0d;
+            } else if (value < getMax() - maxDiffToMax) {
+                maxDiffToMax = getMax() - value;
             }
             super.accept(value);
         }
