@@ -134,7 +134,8 @@ public class HedgingStats implements LastPriceObserver {
 
     @Override
     public void onChange(Quote quote) {
-        if (!isStartTradeMarket()) {
+        val symbol = quote.getSymbol();
+        if (!symbol.equals(getCurrentSymbol()) && !symbol.equals(getFutureSymbol()) || !isStartTradeMarket()) {
             return;
         }
         updateLastDiff(quote);
@@ -149,8 +150,9 @@ public class HedgingStats implements LastPriceObserver {
         if (last == null) {
             return;
         }
-        val currentPrice = quote.getSymbol().equals(getCurrentSymbol()) ? last : null;
-        val futurePrice = quote.getSymbol().equals(getFutureSymbol()) ? last : null;
+        val symbol = quote.getSymbol();
+        val currentPrice = symbol.equals(getCurrentSymbol()) ? last : null;
+        val futurePrice = symbol.equals(getFutureSymbol()) ? last : null;
         if (diffStats.updateLastDiff(currentPrice, futurePrice)) {
             changeDiffStatsTime = DateUtils.now();
         }

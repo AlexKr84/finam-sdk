@@ -66,17 +66,13 @@ public class DiffStats {
     }
 
     public boolean updateLastDiff(BigDecimal currentPrice, BigDecimal futurePrice) {
-        var lastDiffChange = false;
-        if (currentPrice != null) {
-            lastDiff.setCurrentPrice(currentPrice);
-            lastDiffChange = true;
+        if (currentPrice == null && futurePrice == null) {
+            return false;
         }
-        if (futurePrice != null) {
-            lastDiff.setFuturePrice(futurePrice);
-            lastDiffChange = true;
-        }
+        lastDiff.setCurrentPrice(currentPrice);
+        lastDiff.setFuturePrice(futurePrice);
         val diff = lastDiff.getValue();
-        if (!lastDiffChange || diff == null) {
+        if (diff == null) {
             return false;
         }
         var statsChange = false;

@@ -44,13 +44,14 @@ public class LastPriceListener {
         lastPriceObservers.add(lastPriceStorage);
         symbolList = hedgingStrategyStorage.getSymbolList();
 
-        processor = response -> response.getQuoteList().stream()
-                .sorted(Comparator.comparing(q -> DateUtils.timestampToInstant(q.getTimestamp())))
-                .forEach(quote -> {
-                            lastPriceObservers.forEach(lastPriceObserver -> lastPriceObserver.onChange(quote));
-                            hedgingStrategyStorage.buyOrSell(quote.getSymbol());
-                        }
-                );
+        processor = response -> Optional.ofNullable(response)
+                .ifPresent(r -> r.getQuoteList().stream()
+                        .sorted(Comparator.comparing(q -> DateUtils.timestampToInstant(q.getTimestamp())))
+                        .forEach(quote -> {
+                                    lastPriceObservers.forEach(lastPriceObserver -> lastPriceObserver.onChange(quote));
+                                    hedgingStrategyStorage.buyOrSell(quote.getSymbol());
+                                }
+                        ));
     }
 
     @PostConstruct
