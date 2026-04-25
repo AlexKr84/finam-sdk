@@ -63,7 +63,7 @@ public class HedgingFunding {
                 .filter(p -> p.getSymbol().equals(getCurrentSymbol()))
                 .findFirst()
                 .flatMap(position -> {
-                    val nowLocalDate = DateUtils.now().toLocalDate();
+                    val nowLocalDate = DateUtils.nowDate();
                     val lastQuote = api.getMarketDataService().getLastQuote(getCurrentSymbol());
                     val lastDate = DateUtils.timestampToZonedDateTime(lastQuote.getTimestamp()).toLocalDate();
                     if (withFuturePayment && !lastDate.equals(nowLocalDate)) {

@@ -1,9 +1,11 @@
 package ru.finam.trade.hedging.last_price;
 
 import grpc.tradeapi.v1.marketdata.SubscribeQuoteResponse;
+import io.smallrye.mutiny.tuples.Tuple2;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import ru.finam.trade.api.FinamApi;
@@ -45,13 +47,19 @@ public class LastPriceListener {
         symbolList = hedgingStrategyStorage.getSymbolList();
 
         processor = response -> Optional.ofNullable(response)
-                .ifPresent(r -> r.getQuoteList().stream()
-                        .sorted(Comparator.comparing(q -> DateUtils.timestampToInstant(q.getTimestamp())))
-                        .forEach(quote -> {
-                                    lastPriceObservers.forEach(lastPriceObserver -> lastPriceObserver.onChange(quote));
-                                    hedgingStrategyStorage.buyOrSell(quote.getSymbol());
-                                }
-                        ));
+                .ifPresent(r -> {
+                    val now = DateUtils.nowDate();
+                    r.getQuoteList().stream()
+                            .map(q -> Tuple2.of(DateUtils.timestampToZonedDateTime(q.getTimestamp()), q))
+                            .filter(t -> t.getItem1().toLocalDate().equals(now))
+                            .sorted(Comparator.comparing(Tuple2::getItem1))
+                            .map(Tuple2::getItem2)
+                            .forEach(quote -> {
+                                        lastPriceObservers.forEach(lastPriceObserver -> lastPriceObserver.onChange(quote));
+                                        hedgingStrategyStorage.buyOrSell(quote.getSymbol());
+                                    }
+                            );
+                });
     }
 
     @PostConstruct

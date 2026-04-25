@@ -1,5 +1,6 @@
 package ru.finam.trade.hedging.order_state;
 
+import grpc.tradeapi.v1.orders.OrderStatus;
 import grpc.tradeapi.v1.orders.SubscribeOrdersResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
@@ -33,7 +34,13 @@ public class OrderStateListener {
         this.notificationService = notificationService;
         executorService = Executors.newScheduledThreadPool(1);
 
-        processor = response -> response.getOrdersList().forEach(orderStateObserver::onChangeOrderState);
+        processor = response -> response.getOrdersList()
+                .forEach(orderState -> {
+                    if (OrderStatus.ORDER_STATUS_FILLED.equals(orderState.getStatus())) {
+                        log.info("process orderState {}", orderState);
+                    }
+                    orderStateObserver.onChangeOrderState(orderState);
+                });
     }
 
     @PostConstruct

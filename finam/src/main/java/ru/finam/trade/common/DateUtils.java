@@ -166,6 +166,15 @@ public class DateUtils {
     }
 
     /**
+     * Возвращает текущую дату {@link LocalDate}
+     *
+     * @return текущая дата {@link LocalDate}
+     */
+    public static LocalDate nowDate() {
+        return LocalDate.now(DEFAULT_ZONE_ID);
+    }
+
+    /**
      * Преобразование java {@link LocalDateTime} в java {@link Instant}.
      *
      * @param l Экземпляр google {@link LocalDateTime}.

@@ -41,6 +41,7 @@ public class HedgingStats implements LastPriceObserver {
     private final InstrumentInfo anotherFutureInstrument;
     @Getter
     private final BigDecimal multiplier;
+    private final BigDecimal contangoDayRatio;
     @Getter
     private DiffStats diffStats;
     @Getter
@@ -60,6 +61,7 @@ public class HedgingStats implements LastPriceObserver {
         futureInstrument = geInstrumentByTicker(hedgingInstrument.futureTicker());
         anotherFutureInstrument = geInstrumentByTicker(hedgingInstrument.anotherFutureTicker());
         multiplier = hedgingInstrument.multiplier();
+        contangoDayRatio = hedgingInstrument.contangoDayRatio();
         updateStats();
     }
 
@@ -117,7 +119,7 @@ public class HedgingStats implements LastPriceObserver {
         val anotherFutureLastPrice = getLastPrice(getAnotherFutureSymbol());
         val betweenFutureDays = getBetweenDays(futureInstrument.getLastTradeDate(), anotherFutureInstrument.getLastTradeDate());
         val contangoDay = anotherFutureLastPrice.subtract(futureLastPrice).abs().divide(betweenFutureDays, 4, RoundingMode.HALF_UP);
-        contangoStats = new ContangoStats(contangoDay, betweenFutureDays.multiply(contangoDay));
+        contangoStats = new ContangoStats(contangoDay.multiply(contangoDayRatio), betweenFutureDays.multiply(contangoDay));
     }
 
     public BigDecimal getRemainingDays() {
