@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class HedgingStats implements LastPriceObserver {
-    private static final LocalTime START_TIME_MARKET = LocalTime.parse("09:00:20");
+    private static final LocalTime START_TIME_MARKET = LocalTime.parse("09:05:00");
 
     private final FinamApi api;
     private final InstrumentStorage instrumentStorage;
