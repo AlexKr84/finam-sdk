@@ -30,12 +30,8 @@ public class HedgingFundingFactory {
         return instrumentStorage.getInstrument("RTSX", ticker);
     }
 
-    @Scheduled(cron = "0 30 1 * * *")
+    @Scheduled(cron = "0 1 7 * * *")
     public void updateFunding() {
-        updateFunding(true);
-    }
-
-    public void updateFunding(boolean withFuturePayment) {
-        hedgingFundingMap.values().forEach(hedgingFunding -> hedgingFunding.updateFunding(withFuturePayment));
+        hedgingFundingMap.values().forEach(HedgingFunding::updateFunding);
     }
 }

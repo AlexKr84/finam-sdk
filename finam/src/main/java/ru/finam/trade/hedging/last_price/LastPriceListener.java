@@ -9,7 +9,7 @@ import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import ru.finam.trade.api.FinamApi;
-import ru.finam.trade.common.AbstractListener;
+import ru.finam.trade.core.listener.AbstractListener;
 import ru.finam.trade.common.DateUtils;
 import ru.finam.trade.core.stream.StreamProcessor;
 import ru.finam.trade.hedging.HedgingStats;
@@ -74,5 +74,10 @@ public class LastPriceListener extends AbstractListener {
     @Override
     public String getPrefixError() {
         return "last price error";
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }

@@ -15,7 +15,6 @@ import ru.finam.trade.hedging.funding.HedgingFundingFactory;
 import ru.finam.trade.instrument.InstrumentStorage;
 import ru.finam.trade.notification.NotificationService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,7 +62,7 @@ public class HedgingConfiguration {
                         Tuple2::getItem2,
                         ListUtils::concat
                         ));
-        hedgingFundingFactory.updateFunding(false);
+        hedgingFundingFactory.updateFunding();
         return res;
     }
 }

@@ -18,10 +18,6 @@ import java.net.HttpURLConnection;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -57,18 +53,12 @@ public class HedgingFunding {
         this.fundingObservers.addAll(fundingObservers);
     }
 
-    public void updateFunding(boolean withFuturePayment) {
+    public void updateFunding() {
         val account = api.getAccountsService().getAccount(api.getAccountId());
         account.getPositionsList().stream()
                 .filter(p -> p.getSymbol().equals(getCurrentSymbol()))
                 .findFirst()
                 .flatMap(position -> {
-                    val nowLocalDate = DateUtils.nowDate();
-                    val lastQuote = api.getMarketDataService().getLastQuote(getCurrentSymbol());
-                    val lastDate = DateUtils.timestampToZonedDateTime(lastQuote.getTimestamp()).toLocalDate();
-                    if (withFuturePayment && !lastDate.equals(nowLocalDate)) {
-                        return Optional.empty();
-                    }
                     val positionMap = fundingObservers.stream()
                             .map(FundingObserver::getCurrentPosition)
                             .filter(Objects::nonNull)
@@ -93,11 +83,6 @@ public class HedgingFunding {
                         return Optional.empty();
                     }
                     val fundingMap = getFundings(getCurrentTicker(), fullPositionAgg.date);
-                    if (withFuturePayment && !fundingMap.containsKey(nowLocalDate)) {
-                        val newFunding = getValueByScheduledService(() ->
-                                Optional.ofNullable(getFundings(getCurrentTicker(), DateUtils.localDateToZonedDateTime(nowLocalDate)).get(nowLocalDate)));
-                        fundingMap.put(nowLocalDate, newFunding);
-                    }
                     Map<LocalDate, BigDecimal> res = new HashMap<>();
                     fundingMap.forEach((date, funding) -> {
                         res.forEach((key, value) -> res.put(key, value.add(funding)));
@@ -113,21 +98,6 @@ public class HedgingFunding {
                             notificationService.sendMessage(String.format("%s date = %s funding = %.2f",
                                     getCurrentSymbol(), DateUtils.localDateToString(date), funding));
                         }));
-    }
-
-    @SneakyThrows
-    private <V> V getValueByScheduledService(Callable<Optional<V>> callable) {
-        val executorService = Executors.newScheduledThreadPool(1);
-        do {
-            try {
-                val result = executorService.schedule(callable, 1, TimeUnit.MINUTES).get();
-                if (result.isPresent()) {
-                    return result.get();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                log.error("get value by scheduled service", e);
-            }
-        } while (true);
     }
 
     @SneakyThrows

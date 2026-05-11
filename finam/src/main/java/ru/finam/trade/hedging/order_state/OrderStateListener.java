@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import ru.finam.trade.api.FinamApi;
-import ru.finam.trade.common.AbstractListener;
+import ru.finam.trade.core.listener.AbstractListener;
 import ru.finam.trade.core.stream.StreamProcessor;
 import ru.finam.trade.notification.NotificationService;
 
@@ -54,5 +54,10 @@ public class OrderStateListener extends AbstractListener {
     @Override
     public String getPrefixError() {
         return "order state error";
+    }
+
+    @Override
+    public int getOrder() {
+        return 2;
     }
 }

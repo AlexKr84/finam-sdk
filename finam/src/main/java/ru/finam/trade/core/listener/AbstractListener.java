@@ -1,7 +1,9 @@
-package ru.finam.trade.common;
+package ru.finam.trade.core.listener;
 
+import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import ru.finam.trade.common.ErrorUtils;
 import ru.finam.trade.notification.NotificationService;
 
 import java.util.concurrent.Executors;
@@ -28,11 +30,14 @@ public abstract class AbstractListener {
 
     public abstract String getPrefixError();
 
+    public abstract int getOrder();
+
     public void onError(Throwable error) {
         checkErrorOnDuplicate(error);
         if (ErrorUtils.isNeedLoggingError(error)) {
             log.error(getPrefixError(), error);
-            notificationService.sendMessage(error.toString());
+            notificationService.sendMessage(error instanceof StatusRuntimeException ?
+                    ((StatusRuntimeException) error).getStatus() : error);
         }
         stopToListen();
 

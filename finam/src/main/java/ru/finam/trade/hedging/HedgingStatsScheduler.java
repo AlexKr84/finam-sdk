@@ -8,19 +8,19 @@ import java.util.Map;
 
 @Service
 public class HedgingStatsScheduler {
-  private final List<HedgingStats> HedgingStatsList;
+  private final List<HedgingStats> hedgingStatsList;
 
   public HedgingStatsScheduler(Map<String, HedgingStats> hedgingStatsMap) {
-    HedgingStatsList = hedgingStatsMap.values().stream().toList();
+    hedgingStatsList = hedgingStatsMap.values().stream().toList();
   }
 
-  @Scheduled(cron = "0 0 3 * * *")
+  @Scheduled(cron = "0 1 7 * * *")
   public void updateStats() {
-    HedgingStatsList.forEach(HedgingStats::updateStats);
+    hedgingStatsList.forEach(HedgingStats::updateStats);
   }
 
   @Scheduled(fixedDelay = 1000)
   public void notifyMaxMinDiff() {
-    HedgingStatsList.forEach(HedgingStats::notifyMaxMinDiff);
+    hedgingStatsList.forEach(HedgingStats::notifyMaxMinDiff);
   }
 }

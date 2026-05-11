@@ -24,7 +24,7 @@ public class NotificationService {
     }
 
     @SneakyThrows
-    public void sendMessage(String message) {
+    public void sendMessage(Object message) {
         UriBuilder builder = UriBuilder
                 .fromUri("https://api.telegram.org")
                 .path("/{token}/sendMessage")

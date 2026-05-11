@@ -87,7 +87,7 @@ public class HedgingStrategyStorage implements OrderStateObserver, TradeObserver
         mapper.writeValue(new File("instruments.yaml"), data);
     }
 
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 1 7 * * *")
     public void updateStrategy() {
         strategyMap.forEach((hedgingInstrument, hedgingStrategyList) -> {
             var diffToMax = hedgingInstrument.strategy().diffToMax();
